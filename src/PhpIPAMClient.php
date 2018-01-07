@@ -24,4 +24,9 @@ class PhpIPAMClient
 	{
 		return $this->connection->call($method, $controller, $identifiers, $params);
 	}
+
+	public function getAllControllers()
+	{
+		return $this->call('OPTIONS', '')->getData();
+	}
 }

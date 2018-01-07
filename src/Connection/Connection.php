@@ -12,8 +12,8 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use PhpIPAMClient\Exception\PhpIPAMException;
 use Respect\Validation\Validator;
-use function PhpIPAMClient\addLastSlash;
-use function PhpIPAMClient\makeURL;
+use function PhpIPAMClient\phpipamAddLastSlash;
+use function PhpIPAMClient\phpipamMakeURL;
 
 class Connection
 {
@@ -130,8 +130,16 @@ class Connection
 
 		//TODO check that token is not expired
 		$client = new Client();
-		$url    = $this->fullURL . $controller . '/' . implode('/', $identifier);
-		$url    = addLastSlash($url);
+		//Controller could be empty for the options call
+		if (empty($controller))
+		{
+			$url = $this->fullURL;
+		}
+		else
+		{
+			$url = $this->fullURL . $controller . '/' . implode('/', $identifier);
+		}
+		$url = phpipamAddLastSlash($url);
 
 //		dd($this->token);
 		$response = $client->$method($url, [
@@ -172,7 +180,7 @@ class Connection
 	private function setUrl(string $url)
 	{
 		//Make the url
-		$url = makeURL($url);
+		$url = phpipamMakeURL($url);
 
 		//Validate url
 		if (Validator::url()->validate($url))
@@ -200,7 +208,7 @@ class Connection
 
 	private function generateFullURL()
 	{
-		$this->fullURL = $this->url . addLastSlash($this->appID);
+		$this->fullURL = $this->url . phpipamAddLastSlash($this->appID);
 	}
 
 	private function setAuth(string $username, string $password)

@@ -9,7 +9,9 @@
 namespace PhpIPAMClient;
 
 //TODO: if there is a port given the 'https' is quatsch
-function makeURL($url, $scheme = 'https://'): string
+use PhpIPAMClient\Connection\Connection;
+
+function phpipamMakeURL($url, $scheme = 'https://'): string
 {
 //	$url = strtolower($url);
 	$url = trim($url);
@@ -18,7 +20,7 @@ function makeURL($url, $scheme = 'https://'): string
 	//Set https if nothing is given
 	$url = parse_url($url, PHP_URL_SCHEME) === null ? $scheme . $url : $url;
 	//Add last slash if not set
-	$url = addLastSlash($url);
+	$url = phpipamAddLastSlash($url);
 	//check if add the end is api/ given
 	if (substr($url, -4) !== 'api/')
 	{
@@ -28,7 +30,7 @@ function makeURL($url, $scheme = 'https://'): string
 	return $url;
 }
 
-function checkSSL(string $url)
+function phpipamCheckSSL(string $url)
 {
 	// Create a stream context
 	$stream = stream_context_create(array("ssl" => array("capture_peer_cert" => true)));
@@ -43,7 +45,7 @@ function checkSSL(string $url)
 	return (!is_null($cert)) ? true : false;
 }
 
-function addLastSlash(string $value): string
+function phpipamAddLastSlash(string $value): string
 {
 	if (substr($value, -1) !== '/')
 	{
@@ -51,4 +53,9 @@ function addLastSlash(string $value): string
 	}
 
 	return $value;
+}
+
+function phpipamConnection()
+{
+	return Connection::getInstance();
 }
