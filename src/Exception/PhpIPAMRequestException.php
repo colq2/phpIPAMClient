@@ -6,10 +6,10 @@
  * Time: 16:12
  */
 
-namespace PhpIPAMClient\Exception;
+namespace colq2\PhpIPAMClient\Exception;
 
 
-use PhpIPAMClient\Connection\Response;
+use colq2\PhpIPAMClient\Connection\Response;
 use Throwable;
 
 class PhpIPAMRequestException extends \Exception

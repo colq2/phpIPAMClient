@@ -6,10 +6,10 @@
  * Time: 17:17
  */
 
-namespace PhpIPAMClient;
+namespace colq2\PhpIPAMClient;
 
 //TODO: if there is a port given the 'https' is quatsch
-use PhpIPAMClient\Connection\Connection;
+use colq2\PhpIPAMClient\Connection\Connection;
 
 function phpipamMakeURL($url, $scheme = 'https://'): string
 {

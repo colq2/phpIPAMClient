@@ -6,15 +6,15 @@
  * Time: 15:46
  */
 
-namespace PhpIPAMClient\Connection;
+namespace colq2\PhpIPAMClient\Connection;
 
+use colq2\PhpIPAMClient\Exception\PhpIPAMException;
+use colq2\PhpIPAMClient\Exception\PhpIPAMRequestException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
-use PhpIPAMClient\Exception\PhpIPAMException;
-use PhpIPAMClient\Exception\PhpIPAMRequestException;
 use Respect\Validation\Validator;
-use function PhpIPAMClient\phpipamAddLastSlash;
-use function PhpIPAMClient\phpipamMakeURL;
+use function colq2\PhpIPAMClient\phpipamAddLastSlash;
+use function colq2\PhpIPAMClient\phpipamMakeURL;
 
 class Connection
 {

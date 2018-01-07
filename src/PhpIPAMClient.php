@@ -6,9 +6,9 @@
  * Time: 15:16
  */
 
-namespace PhpIPAMClient;
+namespace colq2\PhpIPAMClient;
 
-use PhpIPAMClient\Connection\Connection;
+use colq2\PhpIPAMClient\Connection\Connection;
 
 
 class PhpIPAMClient
