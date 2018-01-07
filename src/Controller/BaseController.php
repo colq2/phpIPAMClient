@@ -65,4 +65,28 @@ abstract class BaseController
 		return phpipamConnection()->call('delete', static::$controllerName, $identifier, $params);
 	}
 
+	/**
+	 * Sets the parameter of the section from array
+	 *
+	 * @param array $params
+	 */
+	protected function setParams(array $params)
+	{
+		foreach ($params as $key => $value)
+		{
+			$this->$key = $value;
+		}
+	}
+
+	/**
+	 * Gets all parameter in a array
+	 * @return array
+	 */
+	protected function getParams()
+	{
+		$params = get_object_vars($this);
+		unset($params['controllerName']);
+
+		return $params;
+	}
 }
