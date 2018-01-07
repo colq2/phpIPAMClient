@@ -1,8 +1,24 @@
 {
     "name": "colq2/phpipam-client",
-    "description": "A API Client for phpIPAM",
+  "description": "A API Client for phpIPAM written in PHP",
+  "keywords": [
+    "phpipam",
+    "api",
+    "client",
+    "php"
+  ],
     "type": "libary",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Oliver Wycisk",
+      "email": "development@o-wycisk.de",
+      "role": "Developer",
+      "homepage": "https://o-wycisk.de"
+    }
+  ],
     "require": {
+      "php": "^7.0",
         "guzzlehttp/guzzle": "^6.3",
         "respect/validation": "1.1.15"
     },
@@ -14,13 +30,6 @@
             "src/helpers.php"
         ]
     },
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Oliver Wycisk",
-            "email": "development@o-wycisk.de"
-        }
-    ],
     "minimum-stability": "dev",
     "require-dev": {
         "larapack/dd": "dev-master"
