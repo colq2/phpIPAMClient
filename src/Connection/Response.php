@@ -12,30 +12,37 @@ namespace PhpIPAMClient\Connection;
 class Response
 {
 	protected $code;
+	protected $success;
 	protected $message;
-	protected $time;
 	protected $data;
+	protected $time;
 
 	protected $body;
 
 	public function __construct(\GuzzleHttp\Psr7\Response $response)
 	{
 		//Get Body from guzzle respons
-		$body = json_decode((string) $response->getBody(), true);
-		$this->body;
+		$body       = json_decode((string) $response->getBody(), true);
+		$this->body = $body;
 
 		$this->code = $body['code'];
-		if ($body['success'])
+
+		if (isset($body['success']))
 		{
-			$this->data    = $body['data'];
-			$this->message = "";
+			$this->success = (bool) $body['success'];
 		}
-		else
+
+		if (isset($body['message']))
 		{
 			$this->message = $body['message'];
 		}
-		$this->time = $body['time'];
 
+		if (isset($body['data']))
+		{
+			$this->data = $body['data'];
+		}
+
+		$this->time = $body['time'];
 	}
 
 	/**
@@ -55,11 +62,11 @@ class Response
 	}
 
 	/**
-	 * @return double
+	 * @return bool
 	 */
-	public function getTime()
+	public function isSuccess(): bool
 	{
-		return $this->time;
+		return $this->success;
 	}
 
 	/**
@@ -68,5 +75,21 @@ class Response
 	public function getData()
 	{
 		return $this->data;
+	}
+
+	/**
+	 * @return double
+	 */
+	public function getTime()
+	{
+		return $this->time;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getBody()
+	{
+		return $this->body;
 	}
 }

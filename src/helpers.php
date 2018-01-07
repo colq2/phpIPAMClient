@@ -55,7 +55,7 @@ function phpipamAddLastSlash(string $value): string
 	return $value;
 }
 
-function phpipamConnection()
+function phpipamConnection(): Connection
 {
 	return Connection::getInstance();
 }

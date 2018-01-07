@@ -11,6 +11,7 @@ namespace PhpIPAMClient\Connection;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use PhpIPAMClient\Exception\PhpIPAMException;
+use PhpIPAMClient\Exception\PhpIPAMRequestException;
 use Respect\Validation\Validator;
 use function PhpIPAMClient\phpipamAddLastSlash;
 use function PhpIPAMClient\phpipamMakeURL;
@@ -30,7 +31,6 @@ class Connection
 	private $password;
 	private $apiKey;
 
-	//TODO implement crypt method
 	protected $possibleSecurityMethods = [self::SECURITY_METHOD_SSL, self::SECURITY_METHOD_CRYPT];
 	protected $securityMethod = self::SECURITY_METHOD_SSL;
 
@@ -47,6 +47,7 @@ class Connection
 	 * @param string|null $apiKey
 	 *
 	 * @throws PhpIPAMException
+	 * @throws PhpIPAMRequestException
 	 */
 	private function __construct(string $url, string $appID, string $username, string $password, string $securityMethod = 'ssl', string $apiKey = null)
 	{
@@ -73,11 +74,8 @@ class Connection
 		}
 		catch (RequestException $e)
 		{
-			//TODO nice exeption handling
-			throw new PhpIPAMException($e->getMessage());
-//			dd($e->getCode());
-//			$body = (string) $e->getResponse()->getBody();
-//			dd((string)$e->getResponse()->getBody());
+			$response = new Response($e->getResponse());
+			throw new PhpIPAMRequestException($response, $response->getMessage());
 		}
 	}
 
@@ -141,20 +139,28 @@ class Connection
 		}
 		$url = phpipamAddLastSlash($url);
 
-//		dd($this->token);
-		$response = $client->$method($url, [
-			'headers' => [
-				'phpipam-token' => $this->token
-			],
-			'body'    => \GuzzleHttp\json_encode($params),
-			'verify'  => false
-		]);
+		try
+		{
+			$response = $client->$method($url, [
+				'headers' => [
+					'phpipam-token' => $this->token
+				],
+				'body'    => http_build_query($params),
+				'verify'  => false
+			]);
 
-		return new Response($response);
+			return new Response($response);
+		}
+		catch (RequestException $e)
+		{
+			$response = new Response($e->getResponse());
+			throw new PhpIPAMRequestException($response, $response->getMessage());
+		}
 	}
 
 	protected function callCrypt(string $method, string $controller, array $identifier = array(), array $params = array()): Response
 	{
+		//TODO implement crypt method
 		return null;
 	}
 
