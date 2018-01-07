@@ -6,6 +6,14 @@
         "guzzlehttp/guzzle": "^6.3",
         "respect/validation": "1.1.15"
     },
+    "autoload": {
+        "psr-4": {
+            "PhpIPAMClient\\": "src/"
+        },
+        "files": [
+            "src/helpers.php"
+        ]
+    },
     "license": "MIT",
     "authors": [
         {
@@ -13,5 +21,8 @@
             "email": "development@o-wycisk.de"
         }
     ],
-    "minimum-stability": "dev"
+    "minimum-stability": "dev",
+    "require-dev": {
+        "larapack/dd": "dev-master"
+    }
 }

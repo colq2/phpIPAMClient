@@ -6,7 +6,7 @@
  * Time: 15:36
  */
 
-namespace PhpIPAM\Controller;
+namespace PhpIPAMClient\Controller;
 
 
 class Section

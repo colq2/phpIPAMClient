@@ -6,18 +6,17 @@
  * Time: 15:16
  */
 
-namespace PhpIPAM;
+namespace PhpIPAMClient;
 
+use PhpIPAMClient\Connection\Connection;
 
-use Respect\Validation\Validator;
 
 class PhpIPAMClient
 {
 	protected $connection;
 
-	public function __construct(string $url, string $app_name, string $username, string $password, $api_key, string $method = 'ssl')
+	public function __construct(string $url, string $appID, string $username, string $password, string $apiKey, string $securityMethod = Connection::SECURITY_METHOD_SSL)
 	{
-//		Validator::
-
+		Connection::initializeConnection($url, $appID, $username, $password, $apiKey, $securityMethod);
 	}
 }
