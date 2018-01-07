@@ -16,9 +16,13 @@ class Response
 	protected $time;
 	protected $data;
 
-	public function __construct($response)
+	protected $body;
+
+	public function __construct(\GuzzleHttp\Psr7\Response $response)
 	{
+		//Get Body from guzzle respons
 		$body = json_decode((string) $response->getBody(), true);
+		$this->body;
 
 		$this->code = $body['code'];
 		if ($body['success'])

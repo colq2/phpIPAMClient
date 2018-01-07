@@ -30,33 +30,6 @@ class Connection
 	private $password;
 	private $apiKey;
 
-	/**
-	 * HTTP error codes for responses
-	 *
-	 * @var mixed
-	 * @access public
-	 */
-	public $error_codes = array(
-		// OK
-		200 => "OK",
-		201 => "Created",
-		202 => "Accepted",
-		204 => "No Content",
-		// Client errors
-		400 => "Bad Request",
-		401 => "Unauthorized",
-		403 => "Forbidden",
-		404 => "Not Found",
-		405 => "Method Not Allowed",
-		415 => "Unsupported Media Type",
-		// Server errors
-		500 => "Internal Server Error",
-		501 => "Not Implemented",
-		503 => "Service Unavailable",
-		505 => "HTTP Version Not Supported",
-		511 => "Network Authentication Required"
-	);
-
 	//TODO implement crypt method
 	protected $possibleSecurityMethods = [self::SECURITY_METHOD_SSL, self::SECURITY_METHOD_CRYPT];
 	protected $securityMethod = self::SECURITY_METHOD_SSL;
@@ -129,6 +102,61 @@ class Connection
 		$this->tokenExpires = $response->getData()['expires'];
 	}
 
+	public function call(string $method, string $controller, array $identifier = array(), array $params = array())
+	{
+		//TODO ensure that method and controller are valid
+		$method     = strtolower($method);
+		$controller = strtolower($controller);
+
+
+		switch ($this->securityMethod)
+		{
+			case Connection::SECURITY_METHOD_SSL:
+				return $this->callSSL($method, $controller, $identifier, $params);
+				break;
+
+			case Connection::SECURITY_METHOD_CRYPT:
+				return $this->callCrypt($method, $controller, $identifier, $params);
+				break;
+
+			default:
+				throw new PhpIPAMException('This Security method is not allowed.');
+		}
+	}
+
+	protected function callSSL(string $method, string $controller, array $identifier = array(), array $params = array()): Response
+	{
+		//TODO ensure that it is a ssl connection
+
+		//TODO check that token is not expired
+		$client = new Client();
+		$url    = $this->fullURL . $controller . '/' . implode('/', $identifier);
+		$url    = addLastSlash($url);
+
+//		dd($this->token);
+		$response = $client->$method($url, [
+			'headers' => [
+				'phpipam-token' => $this->token
+			],
+			'body'    => \GuzzleHttp\json_encode($params),
+			'verify'  => false
+		]);
+
+		return new Response($response);
+	}
+
+	protected function callCrypt(string $method, string $controller, array $identifier = array(), array $params = array()): Response
+	{
+		return null;
+	}
+
+	public static function callStatic(string $method, string $controller, array $identifier = array(), array $params = array())
+	{
+		$connection = self::getInstance();
+
+		return $connection->call($method, $controller, $identifier, $params);
+	}
+
 	public static function initializeConnection(string $url, string $app_name, string $username, string $password, string $method = 'ssl', string $apiKey = null): Connection
 	{
 		self::$connection = new Connection($url, $app_name, $username, $password, $apiKey, $method);
@@ -138,14 +166,7 @@ class Connection
 
 	public static function getInstance(): Connection
 	{
-		if (self::$connection == null)
-		{
-			throw new PhpIPAMException('There is no connection.');
-		}
-		else
-		{
-			return self::$connection;
-		}
+		return self::$connection;
 	}
 
 	private function setUrl(string $url)
