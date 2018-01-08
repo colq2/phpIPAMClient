@@ -87,6 +87,43 @@ abstract class BaseController
 		$params = get_object_vars($this);
 		unset($params['controllerName']);
 
+		return self::transformParamsToIDs($params);
+	}
+
+	/**
+	 * Method turn Objects into their id's in a params array
+	 *
+	 * @param array  $params       The param array
+	 * @param string $key          The key which should be there at the end
+	 * @param array  $possibleKeys Possible key in which the Object could stand
+	 *
+	 * @param        $class
+	 *
+	 * @return mixed
+	 */
+	public static function getIDFromParams(array $params, string $key, array $possibleKeys = array(), $class)
+	{
+		//Merge keys to one array
+		$keys = array_merge($possibleKeys, [$key]);
+		foreach ($keys as $k)
+		{
+			//check if key exists in params and if its an instance of the given class
+			if (array_key_exists($k, $params) AND is_a($params[$k], $class, true))
+			{
+				$params[$key] = $params[$k]->getID();
+
+				//Delete $k if it different from $key
+				if ($key !== $k)
+				{
+					unset($params[$k]);
+				}
+
+				return $params;
+			}
+		}
+
 		return $params;
 	}
+
+	protected abstract static function transformParamsToIDs(array $params);
 }
