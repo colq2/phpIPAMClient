@@ -199,7 +199,7 @@ class Section extends BaseController
 	{
 		$this->setParams($params);
 		$params   = $this->getParams();
-		$response = parent::_patch([], $params);
+		$response = $this->_patch([], $params);
 
 		return $response->isSuccess();
 	}
@@ -210,7 +210,7 @@ class Section extends BaseController
 	 */
 	public function delete()
 	{
-		return parent::_delete([], ['id' => $this->getId()])->isSuccess();
+		return $this->_delete([], ['id' => $this->getId()])->isSuccess();
 	}
 
 	/**

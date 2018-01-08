@@ -9,6 +9,9 @@
 namespace colq2\PhpIPAMClient\Controller;
 
 
+use colq2\PhpIPAMClient\Exception\PhpIPAMException;
+use colq2\PhpIPAMClient\Exception\PhpIPAMRequestException;
+
 class Subnet extends BaseController
 {
 
@@ -45,9 +48,16 @@ class Subnet extends BaseController
 		$this->setParams($params);
 	}
 
+	public static function getAll()
+	{
+		$response = self::_getStatic(['all']);
+		dd($response);
+	}
+
 	public static function getByID(int $id)
 	{
 		$response = self::_getStatic([$id]);
+
 		return new Subnet($response->getData());
 	}
 
@@ -115,6 +125,7 @@ class Subnet extends BaseController
 
 	public static function post(array $params = array())
 	{
+		//TODO Implement
 		$response = self::_postStatic([], $params);
 		$id       = $response->getBody()['id'];
 
@@ -138,11 +149,88 @@ class Subnet extends BaseController
 	public function postFirstSubnet(int $mask): Subnet
 	{
 		$response = $this->_post([$this->id, 'first_subnet', $mask]);
-		dd($response);
-		$id = $response->getBody()['id'];
+		$id       = $response->getBody()['id'];
 
 		return Subnet::getByID($id);
 	}
 
+	/**
+	 * Updates Subnet
+	 * You can provide an array with the new params or use the setter methods.
+	 *
+	 * @param array $params Array with the params that should be set
+	 *
+	 * @return bool
+	 */
+	public function patch(array $params = array())
+	{
+		$this->setParams($params);
+		$params = $this->getParams();
+
+		$response = self::_patch([], $params);
+
+		return $response->isSuccess();
+	}
+
+	/**
+	 * Resizes subnet to new mask
+	 *
+	 * @param int $mask New mask
+	 *
+	 * @return bool
+	 * @throws PhpIPAMRequestException
+	 */
+	public function patchResize(int $mask)
+	{
+		try{
+			$response = $this->_patch([$this->id, 'resize'], ['mask' => $mask]);
+		}catch (PhpIPAMRequestException $e){
+			//Catch if the changes doesn't change anything
+			if($e->getMessage() === "New network is same as old network"){
+				return true;
+			}else{
+				throw $e;
+			}
+		}
+		if($response->isSuccess()){
+			//Update the this object
+			$section = Subnet::getByID($this->id);
+			$this->setParams($section->getParams());
+			return true;
+		}
+	}
+
+	/**
+	 * Splits subnet to smaller subnets
+	 *
+	 * @param int $number       Number in how much subnets this should be split
+	 *
+	 * @return bool
+	 */
+	public function patchSplit(int $number): bool
+	{
+		try{
+			$response = $this->_patch([$this->id, 'split'], ['number' => $number]);
+		}catch (PhpIPAMRequestException $e)
+		{
+			return false;
+		}
+
+		if($response->isSuccess()){
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	/**
+	 * Deletes Subnet
+	 *
+	 * @return bool
+	 */
+	public function delete(): bool
+	{
+		return $this->_delete([$this->id])->isSuccess();
+	}
 
 }
