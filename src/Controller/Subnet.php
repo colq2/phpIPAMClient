@@ -48,7 +48,6 @@ class Subnet extends BaseController
 	public static function getByID(int $id)
 	{
 		$response = self::_getStatic([$id]);
-
 		return new Subnet($response->getData());
 	}
 
@@ -104,9 +103,45 @@ class Subnet extends BaseController
 		return $this->_get(['custom_fields']);
 	}
 
+	public function getCIDRSearch(string $subnet)
+	{
+		return $this->_get(['cidr', $subnet])->getData();
+	}
+
 	public function getSearch(string $subnet)
 	{
+		return $this->_get(['search', $subnet])->getData();
+	}
 
+	public static function post(array $params = array())
+	{
+		$response = self::_postStatic([], $params);
+		$id       = $response->getBody()['id'];
+
+		return Subnet::getByID($id);
+		dd($response);
+		//A subnet needs a section id and a subnet and a mask
+		if (array_key_exists('subnet', $params) or array_key_exists('sectionId', $params))
+		{
+			self::_postStatic([], $params);
+		}
+		else
+		{
+			throw new PhpIPAMException('Name is not given. Provide at least a name for the section.');
+		}
+
+		//Section is created lets get it
+		return Section::getByName($params['name']);
+	}
+
+
+	public function postFirstSubnet(int $mask): Subnet
+	{
+		$response = $this->_post([$this->id, 'first_subnet', $mask]);
+		dd($response);
+		$id = $response->getBody()['id'];
+
+		return Subnet::getByID($id);
 	}
 
 

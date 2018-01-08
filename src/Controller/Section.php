@@ -172,7 +172,7 @@ class Section extends BaseController
 	 * @return Section
 	 * @throws PhpIPAMException
 	 */
-	public static function create(array $params)
+	public static function post(array $params): Section
 	{
 		//Check if there is at all a name given
 		if (array_key_exists('name', $params))

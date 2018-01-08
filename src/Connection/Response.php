@@ -21,7 +21,7 @@ class Response
 
 	public function __construct(\GuzzleHttp\Psr7\Response $response)
 	{
-		//Get Body from guzzle respons
+		//Get Body from guzzle response
 		$body       = json_decode((string) $response->getBody(), true);
 		$this->body = $body;
 
