@@ -48,6 +48,7 @@ class Subnet extends BaseController
 	public static function getByID(int $id)
 	{
 		$response = self::_getStatic([$id]);
+
 		return new Subnet($response->getData());
 	}
 
@@ -115,23 +116,12 @@ class Subnet extends BaseController
 
 	public static function post(array $params = array())
 	{
+		//Params that could be converted from objects to id
+		$params   = self::transformToIDs($params);
 		$response = self::_postStatic([], $params);
 		$id       = $response->getBody()['id'];
 
 		return Subnet::getByID($id);
-		dd($response);
-		//A subnet needs a section id and a subnet and a mask
-		if (array_key_exists('subnet', $params) or array_key_exists('sectionId', $params))
-		{
-			self::_postStatic([], $params);
-		}
-		else
-		{
-			throw new PhpIPAMException('Name is not given. Provide at least a name for the section.');
-		}
-
-		//Section is created lets get it
-		return Section::getByName($params['name']);
 	}
 
 
@@ -144,5 +134,45 @@ class Subnet extends BaseController
 		return Subnet::getByID($id);
 	}
 
+	public static function transformToIDs($params)
+	{
+		//sectionId, linked_subnet, vlanId, vrfId, masterSubnetId
+		$params = self::getIDFromParams($params, 'sectionId', ['sectionID', 'section'], Section::class);
+		$params = self::getIDFromParams($params, 'linked_subnet', ['linked_subnetId'], Subnet::class);
+		$params = self::getIDFromParams($params, 'vlanId', ['vlanID', 'vlan'], 'vlan::class');
+		$params = self::getIDFromParams($params, 'vrfId', ['vrfID', 'vrf'], 'vrf::class');
+
+		return $params;
+	}
+
+	public static function getIDFromParams($params, $key, $possibleKeys, $class)
+	{
+		//Merge keys to one array
+		$keys = array_merge($possibleKeys, [$key]);
+		foreach ($keys as $k)
+		{
+			//check if key exists in params and if its an instance of the given class
+			if (array_key_exists($k, $params) AND is_a($params[$k], $class, true))
+			{
+				$params[$key] = $params[$k]->getID();
+
+				//Delete $k if it different from $key
+				if ($key !== $k)
+				{
+					unset($params[$k]);
+				}
+
+				return $params;
+			}
+		}
+
+		return $params;
+	}
+
+
+	public function getID()
+	{
+		return $this->id;
+	}
 
 }
