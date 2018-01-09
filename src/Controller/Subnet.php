@@ -52,11 +52,6 @@ class Subnet extends BaseController
 		return new Subnet($response->getData());
 	}
 
-	public static function getCIDR(string $subnet)
-	{
-		//TODO implement
-	}
-
 	public function getUsage()
 	{
 		return self::_getStatic([$this->id, 'usage'])->getData();
@@ -81,11 +76,13 @@ class Subnet extends BaseController
 
 	public function getAddresses()
 	{
+		//TODO return object
 		return $this->_get([$this->id, 'addresses'])->getData();
 	}
 
 	public function getAddressesIP(string $ip)
 	{
+		//TODO return object
 		return $this->_get([$this->id, 'addresses', $ip])->getData();
 	}
 
@@ -134,7 +131,7 @@ class Subnet extends BaseController
 		return Subnet::getByID($id);
 	}
 
-	public static function transformToIDs($params)
+	protected static function transformParamsToIDs(array $params)
 	{
 		//sectionId, linked_subnet, vlanId, vrfId, masterSubnetId
 		$params = self::getIDFromParams($params, 'sectionId', ['sectionID', 'section'], Section::class);
@@ -145,34 +142,488 @@ class Subnet extends BaseController
 		return $params;
 	}
 
-	public static function getIDFromParams($params, $key, $possibleKeys, $class)
-	{
-		//Merge keys to one array
-		$keys = array_merge($possibleKeys, [$key]);
-		foreach ($keys as $k)
-		{
-			//check if key exists in params and if its an instance of the given class
-			if (array_key_exists($k, $params) AND is_a($params[$k], $class, true))
-			{
-				$params[$key] = $params[$k]->getID();
+	//TODO adjust getter and setter
 
-				//Delete $k if it different from $key
-				if ($key !== $k)
-				{
-					unset($params[$k]);
-				}
-
-				return $params;
-			}
-		}
-
-		return $params;
-	}
-
-
-	public function getID()
+	/**
+	 * @return mixed
+	 */
+	public function getId()
 	{
 		return $this->id;
 	}
+
+	/**
+	 * @param mixed $id
+	 *
+	 * @return Subnet
+	 */
+	public function setId($id)
+	{
+		$this->id = $id;
+
+		return $this;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getSubnet()
+	{
+		return $this->subnet;
+	}
+
+	/**
+	 * @param mixed $subnet
+	 *
+	 * @return Subnet
+	 */
+	public function setSubnet($subnet)
+	{
+		$this->subnet = $subnet;
+
+		return $this;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getMask()
+	{
+		return $this->mask;
+	}
+
+	/**
+	 * @param mixed $mask
+	 *
+	 * @return Subnet
+	 */
+	public function setMask($mask)
+	{
+		$this->mask = $mask;
+
+		return $this;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getDescription()
+	{
+		return $this->description;
+	}
+
+	/**
+	 * @param mixed $description
+	 *
+	 * @return Subnet
+	 */
+	public function setDescription($description)
+	{
+		$this->description = $description;
+
+		return $this;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getSectionId()
+	{
+		return $this->sectionId;
+	}
+
+	/**
+	 * @param mixed $sectionId
+	 *
+	 * @return Subnet
+	 */
+	public function setSectionId($sectionId)
+	{
+		$this->sectionId = $sectionId;
+
+		return $this;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getLinkedSubnet()
+	{
+		return $this->linked_subnet;
+	}
+
+	/**
+	 * @param mixed $linked_subnet
+	 *
+	 * @return Subnet
+	 */
+	public function setLinkedSubnet($linked_subnet)
+	{
+		$this->linked_subnet = $linked_subnet;
+
+		return $this;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getVlanId()
+	{
+		return $this->vlanId;
+	}
+
+	/**
+	 * @param mixed $vlanId
+	 *
+	 * @return Subnet
+	 */
+	public function setVlanId($vlanId)
+	{
+		$this->vlanId = $vlanId;
+
+		return $this;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getVrfId()
+	{
+		return $this->vrfId;
+	}
+
+	/**
+	 * @param mixed $vrfId
+	 *
+	 * @return Subnet
+	 */
+	public function setVrfId($vrfId)
+	{
+		$this->vrfId = $vrfId;
+
+		return $this;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getMasterSubnetId()
+	{
+		return $this->masterSubnetId;
+	}
+
+	/**
+	 * @param mixed $masterSubnetId
+	 *
+	 * @return Subnet
+	 */
+	public function setMasterSubnetId($masterSubnetId)
+	{
+		$this->masterSubnetId = $masterSubnetId;
+
+		return $this;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getNameserverId()
+	{
+		return $this->nameserverId;
+	}
+
+	/**
+	 * @param mixed $nameserverId
+	 *
+	 * @return Subnet
+	 */
+	public function setNameserverId($nameserverId)
+	{
+		$this->nameserverId = $nameserverId;
+
+		return $this;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getShowName()
+	{
+		return $this->showName;
+	}
+
+	/**
+	 * @param mixed $showName
+	 *
+	 * @return Subnet
+	 */
+	public function setShowName($showName)
+	{
+		$this->showName = $showName;
+
+		return $this;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getPermissions()
+	{
+		return $this->permissions;
+	}
+
+	/**
+	 * @param mixed $permissions
+	 *
+	 * @return Subnet
+	 */
+	public function setPermissions($permissions)
+	{
+		$this->permissions = $permissions;
+
+		return $this;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getDNSrecursive()
+	{
+		return $this->DNSrecursive;
+	}
+
+	/**
+	 * @param mixed $DNSrecursive
+	 *
+	 * @return Subnet
+	 */
+	public function setDNSrecursive($DNSrecursive)
+	{
+		$this->DNSrecursive = $DNSrecursive;
+
+		return $this;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getDNSrecords()
+	{
+		return $this->DNSrecords;
+	}
+
+	/**
+	 * @param mixed $DNSrecords
+	 *
+	 * @return Subnet
+	 */
+	public function setDNSrecords($DNSrecords)
+	{
+		$this->DNSrecords = $DNSrecords;
+
+		return $this;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getAllowRequests()
+	{
+		return $this->allowRequests;
+	}
+
+	/**
+	 * @param mixed $allowRequests
+	 *
+	 * @return Subnet
+	 */
+	public function setAllowRequests($allowRequests)
+	{
+		$this->allowRequests = $allowRequests;
+
+		return $this;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getScanAgent()
+	{
+		return $this->scanAgent;
+	}
+
+	/**
+	 * @param mixed $scanAgent
+	 *
+	 * @return Subnet
+	 */
+	public function setScanAgent($scanAgent)
+	{
+		$this->scanAgent = $scanAgent;
+
+		return $this;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getPingSubnet()
+	{
+		return $this->pingSubnet;
+	}
+
+	/**
+	 * @param mixed $pingSubnet
+	 *
+	 * @return Subnet
+	 */
+	public function setPingSubnet($pingSubnet)
+	{
+		$this->pingSubnet = $pingSubnet;
+
+		return $this;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getDiscoverSubnet()
+	{
+		return $this->discoverSubnet;
+	}
+
+	/**
+	 * @param mixed $discoverSubnet
+	 *
+	 * @return Subnet
+	 */
+	public function setDiscoverSubnet($discoverSubnet)
+	{
+		$this->discoverSubnet = $discoverSubnet;
+
+		return $this;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getisFolder()
+	{
+		return $this->isFolder;
+	}
+
+	/**
+	 * @param mixed $isFolder
+	 *
+	 * @return Subnet
+	 */
+	public function setIsFolder($isFolder)
+	{
+		$this->isFolder = $isFolder;
+
+		return $this;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getisFull()
+	{
+		return $this->isFull;
+	}
+
+	/**
+	 * @param mixed $isFull
+	 *
+	 * @return Subnet
+	 */
+	public function setIsFull($isFull)
+	{
+		$this->isFull = $isFull;
+
+		return $this;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getState()
+	{
+		return $this->state;
+	}
+
+	/**
+	 * @param mixed $state
+	 *
+	 * @return Subnet
+	 */
+	public function setState($state)
+	{
+		$this->state = $state;
+
+		return $this;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getThreshold()
+	{
+		return $this->threshold;
+	}
+
+	/**
+	 * @param mixed $threshold
+	 *
+	 * @return Subnet
+	 */
+	public function setThreshold($threshold)
+	{
+		$this->threshold = $threshold;
+
+		return $this;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getLocation()
+	{
+		return $this->location;
+	}
+
+	/**
+	 * @param mixed $location
+	 *
+	 * @return Subnet
+	 */
+	public function setLocation($location)
+	{
+		$this->location = $location;
+
+		return $this;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getEditDate()
+	{
+		return $this->editDate;
+	}
+
+	/**
+	 * @param mixed $editDate
+	 *
+	 * @return Subnet
+	 */
+	public function setEditDate($editDate)
+	{
+		$this->editDate = $editDate;
+
+		return $this;
+	}
+
+
 
 }
