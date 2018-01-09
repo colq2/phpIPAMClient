@@ -171,28 +171,4 @@ class VRF extends BaseController
 	{
 		return $this->editDate;
 	}
-
-	private static function convertSectionsToID(array $arr)
-	{
-		if (is_null($arr) or empty($arr))
-		{
-			return [];
-		}
-
-		$sections = [];
-		foreach ($arr as $section)
-		{
-			if ($section instanceof Section)
-			{
-				$sections[] = $section->getId();
-			}
-			else
-			{
-				$sections[] = (int) $section;
-			}
-		}
-
-		return $sections;
-	}
-
 }

@@ -24,6 +24,23 @@ abstract class BaseController
 		$this->setParams($params);
 	}
 
+	public static function getAll()
+	{
+		$response = static::_getStatic();
+		if (is_null($response->getData()) or empty($response->getData()))
+		{
+			return [];
+		}
+		$objects = [];
+
+		foreach ($response->getData() as $object)
+		{
+			$objects[] = new static($object);
+		}
+
+		return $objects;
+	}
+
 	public static function getByID(int $id)
 	{
 		return new static(static::_getStatic([$id])->getData());
@@ -213,4 +230,29 @@ abstract class BaseController
 	}
 
 	protected abstract static function transformParamsToIDs(array $params): array;
+
+
+
+	protected static function convertSectionsToID(array $arr)
+	{
+		if (is_null($arr) or empty($arr))
+		{
+			return [];
+		}
+
+		$sections = [];
+		foreach ($arr as $section)
+		{
+			if ($section instanceof Section)
+			{
+				$sections[] = $section->getId();
+			}
+			else
+			{
+				$sections[] = (int) $section;
+			}
+		}
+
+		return $sections;
+	}
 }
