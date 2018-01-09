@@ -130,11 +130,16 @@ class Section extends BaseController
 
 	/**
 	 * Returns all subnets in section
-	 * @param int $id
 	 */
-	public static function getAllSubnets(int $id)
+	public function getAllSubnets()
 	{
-		//TODO: implement
+		$response = $this->_get([$this->id, 'subnets']);
+		$subnets = [];
+		foreach ($response->getData() as $subnet){
+			$subnets[] = new Subnet($subnet);
+		}
+
+		return $subnets;
 	}
 
 	/**
@@ -152,9 +157,8 @@ class Section extends BaseController
 	}
 
 	/**
-	 *    Returns custom section fields
-	 * //TODO: Custom field not supported
-	 * @deprecated
+	 * Returns custom section fields
+	 * Note: this will throw an exception
 	 * @return array
 	 */
 	public static function getCustomFields()
@@ -262,20 +266,21 @@ class Section extends BaseController
 	}
 
 	/**
-	 * TODO: Return section object
+	 * @param bool|null $asObject
+	 *
 	 * @return int
 	 */
-	public function getMasterSection()
+	public function getMasterSection(bool $asObject = null)
 	{
-		return $this->masterSection;
+		return self::getAsObjectOrID($this->masterSection, Section::class, $asObject);
 	}
 
 	/**
-	 * @param int $masterSection
+	 * @param int|Section $masterSection
 	 *
 	 * @return Section
 	 */
-	public function setMasterSection(int $masterSection)
+	public function setMasterSection($masterSection)
 	{
 		$this->masterSection = $masterSection;
 
@@ -358,18 +363,6 @@ class Section extends BaseController
 	public function setOrder(int $order)
 	{
 		$this->order = $order;
-
-		return $this;
-	}
-
-	/**
-	 * @param string $editDate
-	 *
-	 * @return $this
-	 */
-	private function setEditDate(string $editDate)
-	{
-		$this->editDate = $editDate;
 
 		return $this;
 	}
@@ -464,4 +457,8 @@ class Section extends BaseController
 	}
 
 
+	protected static function transformParamsToIDs(array $params)
+	{
+		$params = self::getIDFromParams($params, 'masterSection', ['masterSectionId'], Section::class);
+	}
 }

@@ -14,6 +14,7 @@ abstract class BaseController
 {
 
 	protected static $controllerName = '';
+	public static $defaultAsObject = true;
 
 	protected function _get(array $identifier = array(), array $params = array())
 	{
@@ -87,7 +88,7 @@ abstract class BaseController
 		$params = get_object_vars($this);
 		unset($params['controllerName']);
 
-		return self::transformParamsToIDs($params);
+		return static::transformParamsToIDs($params);
 	}
 
 	/**
@@ -123,6 +124,61 @@ abstract class BaseController
 		}
 
 		return $params;
+	}
+
+	/**
+	 * @param      $value
+	 * @param      $class
+	 * @param bool|null $asObject
+	 *
+	 * @return object|int|null
+	 */
+	protected static function getAsObjectOrID($value, $class, bool $asObject)
+	{
+		if(is_null($asObject)){
+			$asObject = call_user_func(array($class, 'getDefaultAsObjectValue'));
+		}
+
+		if (is_null($value))
+		{
+			return $value;
+		}
+
+		if ($asObject)
+		{
+			//Return as Object
+			if (is_a($value, $class))
+			{
+				//$value is instance of class
+				return $value;
+			}
+			else
+			{
+				return call_user_func(array($class, 'getByID'), $value);
+			}
+		}
+		else
+		{
+			//Return ID
+			if (is_a($value, $class))
+			{
+				return $value->getID();
+			}
+			else
+			{
+				return $value;
+			}
+
+		}
+	}
+
+	protected function getDefaultAsObjectValue(): bool
+	{
+		return (bool) static::$defaultAsObject;
+	}
+
+	public function setDefaultAsObjectValue(bool $asObject){
+		static::$defaultAsObject = $asObject;
 	}
 
 	protected abstract static function transformParamsToIDs(array $params);

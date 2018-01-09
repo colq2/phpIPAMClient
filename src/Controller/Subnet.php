@@ -9,6 +9,8 @@
 namespace colq2\PhpIPAMClient\Controller;
 
 
+use colq2\PhpIPAMClient\Exception\PhpIPAMRequestException;
+
 class Subnet extends BaseController
 {
 
@@ -45,6 +47,17 @@ class Subnet extends BaseController
 		$this->setParams($params);
 	}
 
+	protected static function transformParamsToIDs(array $params)
+	{
+		//sectionId, linked_subnet, vlanId, vrfId, masterSubnetId
+		$params = self::getIDFromParams($params, 'sectionId', ['sectionID', 'section'], Section::class);
+		$params = self::getIDFromParams($params, 'linked_subnet', ['linked_subnetId'], Subnet::class);
+		$params = self::getIDFromParams($params, 'vlanId', ['vlanID', 'vlan'], VLAN::class);
+		$params = self::getIDFromParams($params, 'vrfId', ['vrfID', 'vrf'], VRF::class);
+
+		return $params;
+	}
+
 	public static function getByID(int $id)
 	{
 		$response = self::_getStatic([$id]);
@@ -64,8 +77,16 @@ class Subnet extends BaseController
 
 	public function getSlaves()
 	{
-		//TODO: return objects
-		return $this->_get([$this->id, 'slaves'])->getData();
+		$slaves  = $this->_get([$this->id, 'slaves'])->getData();
+		$subnets = [];
+
+		foreach ($slaves as $slave)
+		{
+			$subnets[] = new Subnet($slave);
+		}
+
+		return $subnets;
+
 	}
 
 	public function getSlavesRecursive()
@@ -76,14 +97,24 @@ class Subnet extends BaseController
 
 	public function getAddresses()
 	{
-		//TODO return object
-		return $this->_get([$this->id, 'addresses'])->getData();
+		$addresses    = $this->_get([$this->id, 'addresses']);
+		$addressesArr = [];
+		foreach ($addresses as $address)
+		{
+			$addressesArr[] = new Address($address);
+		}
+
 	}
 
 	public function getAddressesIP(string $ip)
 	{
-		//TODO return object
-		return $this->_get([$this->id, 'addresses', $ip])->getData();
+		$response = $this->_get([$this->id, 'addresses', $ip]);
+		if(is_null($response->getData())){
+			throw new PhpIPAMRequestException($response);
+		}else{
+			$data = array_values($response->getData());
+			return new Address($data[0]);
+		}
 	}
 
 	public function getFirstSubnet(int $mask)
@@ -98,7 +129,7 @@ class Subnet extends BaseController
 
 	public function getCustomFields()
 	{
-		return $this->_get(['custom_fields']);
+		return $this->_get(['custom_fields'])->getData();
 	}
 
 	public function getCIDRSearch(string $subnet)
@@ -114,7 +145,7 @@ class Subnet extends BaseController
 	public static function post(array $params = array())
 	{
 		//Params that could be converted from objects to id
-		$params   = self::transformToIDs($params);
+		$params   = self::transformParamsToIDs($params);
 		$response = self::_postStatic([], $params);
 		$id       = $response->getBody()['id'];
 
@@ -131,73 +162,80 @@ class Subnet extends BaseController
 		return Subnet::getByID($id);
 	}
 
-	protected static function transformParamsToIDs(array $params)
+	public function patch(array $params = array())
 	{
-		//sectionId, linked_subnet, vlanId, vrfId, masterSubnetId
-		$params = self::getIDFromParams($params, 'sectionId', ['sectionID', 'section'], Section::class);
-		$params = self::getIDFromParams($params, 'linked_subnet', ['linked_subnetId'], Subnet::class);
-		$params = self::getIDFromParams($params, 'vlanId', ['vlanID', 'vlan'], 'vlan::class');
-		$params = self::getIDFromParams($params, 'vrfId', ['vrfID', 'vrf'], 'vrf::class');
+		$this->setParams($params);
+		$params = $this->getParams();
 
-		return $params;
+		return $this->_patch([], $params)->isSuccess();
 	}
 
-	//TODO adjust getter and setter
+	public function patchResize(int $mask)
+	{
+		try{
+			$this->_patch([$this->id, 'resize'], ['mask' => $mask]);
+		}catch (PhpIPAMRequestException $e){
+			if($e->getMessage() == "New network is same as old network"){
+				return true;
+			}else{
+				throw $e;
+			}
+		}
+
+		$this->setParams(Subnet::getByID($this->id)->getParams());
+		return true;
+	}
+
+	public function patchSplit(int $number)
+	{
+		return $this->_patch([$this->id, 'split'], ['number' => $number])->isSuccess();
+	}
+
+	public function delete()
+	{
+		return $this->_delete([$this->id])->isSuccess();
+	}
+
+	public function deleteTruncate()
+	{
+		return $this->_delete([$this->id, 'truncate'])->isSuccess();
+	}
+
+	public function deletePermissions()
+	{
+		return $this->_delete([$this->id, 'permissions'])->isSuccess();
+	}
 
 	/**
-	 * @return mixed
+	 * @return int
 	 */
-	public function getId()
+	public function getId(): int
 	{
 		return $this->id;
 	}
 
 	/**
-	 * @param mixed $id
-	 *
-	 * @return Subnet
+	 * @return string
 	 */
-	public function setId($id)
-	{
-		$this->id = $id;
-
-		return $this;
-	}
-
-	/**
-	 * @return mixed
-	 */
-	public function getSubnet()
+	public function getSubnet(): string
 	{
 		return $this->subnet;
 	}
 
 	/**
-	 * @param mixed $subnet
-	 *
-	 * @return Subnet
+	 * @return int
 	 */
-	public function setSubnet($subnet)
-	{
-		$this->subnet = $subnet;
-
-		return $this;
-	}
-
-	/**
-	 * @return mixed
-	 */
-	public function getMask()
+	public function getMask(): int
 	{
 		return $this->mask;
 	}
 
 	/**
-	 * @param mixed $mask
+	 * @param int $mask
 	 *
 	 * @return Subnet
 	 */
-	public function setMask($mask)
+	public function setMask(int $mask)
 	{
 		$this->mask = $mask;
 
@@ -205,19 +243,19 @@ class Subnet extends BaseController
 	}
 
 	/**
-	 * @return mixed
+	 * @return string
 	 */
-	public function getDescription()
+	public function getDescription(): string
 	{
 		return $this->description;
 	}
 
 	/**
-	 * @param mixed $description
+	 * @param string $description
 	 *
 	 * @return Subnet
 	 */
-	public function setDescription($description)
+	public function setDescription(string $description)
 	{
 		$this->description = $description;
 
@@ -225,15 +263,17 @@ class Subnet extends BaseController
 	}
 
 	/**
-	 * @return mixed
+	 * @param bool|null $asObject
+	 *
+	 * @return int|Section
 	 */
-	public function getSectionId()
+	public function getSectionId(bool $asObject = null)
 	{
-		return $this->sectionId;
+		return self::getAsObjectOrID($this->sectionId, Section::class, $asObject);
 	}
 
 	/**
-	 * @param mixed $sectionId
+	 * @param int|Section $sectionId
 	 *
 	 * @return Subnet
 	 */
@@ -245,15 +285,17 @@ class Subnet extends BaseController
 	}
 
 	/**
-	 * @return mixed
+	 * @param bool|null $asObject
+	 *
+	 * @return int|Subnet|null
 	 */
-	public function getLinkedSubnet()
+	public function getLinkedSubnet(bool $asObject = null)
 	{
-		return $this->linked_subnet;
+		return self::getAsObjectOrID($this->linked_subnet, Subnet::class, $asObject);
 	}
 
 	/**
-	 * @param mixed $linked_subnet
+	 * @param int|Subnet $linked_subnet
 	 *
 	 * @return Subnet
 	 */
@@ -265,15 +307,17 @@ class Subnet extends BaseController
 	}
 
 	/**
-	 * @return mixed
+	 * @param bool|null $asObject
+	 *
+	 * @return int|VLAN|null
 	 */
-	public function getVlanId()
+	public function getVlanId(bool $asObject = null)
 	{
-		return $this->vlanId;
+		return self::getAsObjectOrID($this->vlanId, VLAN::class, $asObject);
 	}
 
 	/**
-	 * @param mixed $vlanId
+	 * @param int|VLAN $vlanId
 	 *
 	 * @return Subnet
 	 */
@@ -285,15 +329,17 @@ class Subnet extends BaseController
 	}
 
 	/**
-	 * @return mixed
+	 * @param bool|null $asObject
+	 *
+	 * @return int|VRF|null
 	 */
-	public function getVrfId()
+	public function getVrfId(bool $asObject = true)
 	{
-		return $this->vrfId;
+		return self::getAsObjectOrID($this->vrfId, VRF::class, $asObject);
 	}
 
 	/**
-	 * @param mixed $vrfId
+	 * @param int|VRF $vrfId
 	 *
 	 * @return Subnet
 	 */
@@ -305,15 +351,17 @@ class Subnet extends BaseController
 	}
 
 	/**
-	 * @return mixed
+	 * @param bool|null $asObject
+	 *
+	 * @return int|Subnet|null
 	 */
-	public function getMasterSubnetId()
+	public function getMasterSubnetId(bool $asObject = null)
 	{
-		return $this->masterSubnetId;
+		return self::getAsObjectOrID($this->masterSubnetId, Subnet::class, $asObject);
 	}
 
 	/**
-	 * @param mixed $masterSubnetId
+	 * @param int|Subnet $masterSubnetId
 	 *
 	 * @return Subnet
 	 */
@@ -325,7 +373,7 @@ class Subnet extends BaseController
 	}
 
 	/**
-	 * @return mixed
+	 * @return int|null
 	 */
 	public function getNameserverId()
 	{
@@ -333,11 +381,11 @@ class Subnet extends BaseController
 	}
 
 	/**
-	 * @param mixed $nameserverId
+	 * @param int|null $nameserverId
 	 *
 	 * @return Subnet
 	 */
-	public function setNameserverId($nameserverId)
+	public function setNameserverId(int $nameserverId)
 	{
 		$this->nameserverId = $nameserverId;
 
@@ -345,19 +393,19 @@ class Subnet extends BaseController
 	}
 
 	/**
-	 * @return mixed
+	 * @return bool
 	 */
-	public function getShowName()
+	public function getShowName(): bool
 	{
 		return $this->showName;
 	}
 
 	/**
-	 * @param mixed $showName
+	 * @param bool $showName
 	 *
 	 * @return Subnet
 	 */
-	public function setShowName($showName)
+	public function setShowName(bool $showName)
 	{
 		$this->showName = $showName;
 
@@ -365,19 +413,19 @@ class Subnet extends BaseController
 	}
 
 	/**
-	 * @return mixed
+	 * @return string
 	 */
-	public function getPermissions()
+	public function getPermissions(): string
 	{
 		return $this->permissions;
 	}
 
 	/**
-	 * @param mixed $permissions
+	 * @param string $permissions
 	 *
 	 * @return Subnet
 	 */
-	public function setPermissions($permissions)
+	public function setPermissions(string $permissions)
 	{
 		$this->permissions = $permissions;
 
@@ -385,19 +433,19 @@ class Subnet extends BaseController
 	}
 
 	/**
-	 * @return mixed
+	 * @return bool
 	 */
-	public function getDNSrecursive()
+	public function getDNSrecursive(): bool
 	{
 		return $this->DNSrecursive;
 	}
 
 	/**
-	 * @param mixed $DNSrecursive
+	 * @param bool $DNSrecursive
 	 *
 	 * @return Subnet
 	 */
-	public function setDNSrecursive($DNSrecursive)
+	public function setDNSrecursive(bool $DNSrecursive)
 	{
 		$this->DNSrecursive = $DNSrecursive;
 
@@ -405,19 +453,19 @@ class Subnet extends BaseController
 	}
 
 	/**
-	 * @return mixed
+	 * @return bool
 	 */
-	public function getDNSrecords()
+	public function getDNSrecords(): bool
 	{
 		return $this->DNSrecords;
 	}
 
 	/**
-	 * @param mixed $DNSrecords
+	 * @param bool $DNSrecords
 	 *
 	 * @return Subnet
 	 */
-	public function setDNSrecords($DNSrecords)
+	public function setDNSrecords(bool $DNSrecords)
 	{
 		$this->DNSrecords = $DNSrecords;
 
@@ -425,19 +473,19 @@ class Subnet extends BaseController
 	}
 
 	/**
-	 * @return mixed
+	 * @return bool
 	 */
-	public function getAllowRequests()
+	public function getAllowRequests(): bool
 	{
 		return $this->allowRequests;
 	}
 
 	/**
-	 * @param mixed $allowRequests
+	 * @param bool $allowRequests
 	 *
 	 * @return Subnet
 	 */
-	public function setAllowRequests($allowRequests)
+	public function setAllowRequests(bool $allowRequests)
 	{
 		$this->allowRequests = $allowRequests;
 
@@ -445,19 +493,19 @@ class Subnet extends BaseController
 	}
 
 	/**
-	 * @return mixed
+	 * @return bool
 	 */
-	public function getScanAgent()
+	public function getScanAgent(): bool
 	{
 		return $this->scanAgent;
 	}
 
 	/**
-	 * @param mixed $scanAgent
+	 * @param bool $scanAgent
 	 *
 	 * @return Subnet
 	 */
-	public function setScanAgent($scanAgent)
+	public function setScanAgent(bool $scanAgent)
 	{
 		$this->scanAgent = $scanAgent;
 
@@ -465,19 +513,19 @@ class Subnet extends BaseController
 	}
 
 	/**
-	 * @return mixed
+	 * @return bool
 	 */
-	public function getPingSubnet()
+	public function getPingSubnet(): bool
 	{
 		return $this->pingSubnet;
 	}
 
 	/**
-	 * @param mixed $pingSubnet
+	 * @param bool $pingSubnet
 	 *
 	 * @return Subnet
 	 */
-	public function setPingSubnet($pingSubnet)
+	public function setPingSubnet(bool $pingSubnet)
 	{
 		$this->pingSubnet = $pingSubnet;
 
@@ -485,19 +533,19 @@ class Subnet extends BaseController
 	}
 
 	/**
-	 * @return mixed
+	 * @return bool
 	 */
-	public function getDiscoverSubnet()
+	public function getDiscoverSubnet(): bool
 	{
 		return $this->discoverSubnet;
 	}
 
 	/**
-	 * @param mixed $discoverSubnet
+	 * @param bool $discoverSubnet
 	 *
 	 * @return Subnet
 	 */
-	public function setDiscoverSubnet($discoverSubnet)
+	public function setDiscoverSubnet(bool $discoverSubnet)
 	{
 		$this->discoverSubnet = $discoverSubnet;
 
@@ -505,19 +553,19 @@ class Subnet extends BaseController
 	}
 
 	/**
-	 * @return mixed
+	 * @return bool
 	 */
-	public function getisFolder()
+	public function getIsFolder(): bool
 	{
 		return $this->isFolder;
 	}
 
 	/**
-	 * @param mixed $isFolder
+	 * @param bool $isFolder
 	 *
 	 * @return Subnet
 	 */
-	public function setIsFolder($isFolder)
+	public function setIsFolder(bool $isFolder)
 	{
 		$this->isFolder = $isFolder;
 
@@ -525,39 +573,27 @@ class Subnet extends BaseController
 	}
 
 	/**
-	 * @return mixed
+	 * @return bool
 	 */
-	public function getisFull()
+	public function getIsFull(): bool
 	{
 		return $this->isFull;
 	}
 
 	/**
-	 * @param mixed $isFull
-	 *
-	 * @return Subnet
+	 * @return int
 	 */
-	public function setIsFull($isFull)
-	{
-		$this->isFull = $isFull;
-
-		return $this;
-	}
-
-	/**
-	 * @return mixed
-	 */
-	public function getState()
+	public function getState(): int
 	{
 		return $this->state;
 	}
 
 	/**
-	 * @param mixed $state
+	 * @param int $state
 	 *
 	 * @return Subnet
 	 */
-	public function setState($state)
+	public function setState(int $state)
 	{
 		$this->state = $state;
 
@@ -565,19 +601,19 @@ class Subnet extends BaseController
 	}
 
 	/**
-	 * @return mixed
+	 * @return int
 	 */
-	public function getThreshold()
+	public function getThreshold(): int
 	{
 		return $this->threshold;
 	}
 
 	/**
-	 * @param mixed $threshold
+	 * @param int $threshold
 	 *
 	 * @return Subnet
 	 */
-	public function setThreshold($threshold)
+	public function setThreshold(int $threshold)
 	{
 		$this->threshold = $threshold;
 
@@ -585,19 +621,19 @@ class Subnet extends BaseController
 	}
 
 	/**
-	 * @return mixed
+	 * @return int
 	 */
-	public function getLocation()
+	public function getLocation(): int
 	{
 		return $this->location;
 	}
 
 	/**
-	 * @param mixed $location
+	 * @param int $location
 	 *
 	 * @return Subnet
 	 */
-	public function setLocation($location)
+	public function setLocation(int $location)
 	{
 		$this->location = $location;
 
@@ -605,25 +641,11 @@ class Subnet extends BaseController
 	}
 
 	/**
-	 * @return mixed
+	 * @return string
 	 */
-	public function getEditDate()
+	public function getEditDate(): string
 	{
 		return $this->editDate;
 	}
-
-	/**
-	 * @param mixed $editDate
-	 *
-	 * @return Subnet
-	 */
-	public function setEditDate($editDate)
-	{
-		$this->editDate = $editDate;
-
-		return $this;
-	}
-
-
 
 }
