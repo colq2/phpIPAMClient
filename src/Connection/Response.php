@@ -70,7 +70,7 @@ class Response
 	}
 
 	/**
-	 * @return array
+	 * @return string|array|null
 	 */
 	public function getData()
 	{

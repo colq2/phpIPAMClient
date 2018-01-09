@@ -98,6 +98,11 @@ class Section extends BaseController
 		$this->setParams($params);
 	}
 
+	protected static function transformParamsToIDs(array $params)
+	{
+		$params = self::getIDFromParams($params, 'masterSection', ['masterSectionId', 'masterSectionID'], Section::class);
+	}
+
 	/**
 	 * Returns all sections
 	 * @return array
@@ -181,6 +186,7 @@ class Section extends BaseController
 		//Check if there is at all a name given
 		if (array_key_exists('name', $params))
 		{
+			$params = self::transformParamsToIDs($params);
 			self::_postStatic([], $params);
 		}
 		else
@@ -454,11 +460,5 @@ class Section extends BaseController
 		$this->DNS = $DNS;
 
 		return $this;
-	}
-
-
-	protected static function transformParamsToIDs(array $params)
-	{
-		$params = self::getIDFromParams($params, 'masterSection', ['masterSectionId'], Section::class);
 	}
 }
