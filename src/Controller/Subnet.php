@@ -86,13 +86,19 @@ class Subnet extends BaseController
 		}
 
 		return $subnets;
-
 	}
 
 	public function getSlavesRecursive()
 	{
-		//TODO: return objects
-		return $this->_get([$this->id, 'slaves_recursive'])->getData();
+		$slaves  = $this->_get([$this->id, 'slaves_recursive'])->getData();
+		$subnets = [];
+
+		foreach ($slaves as $slave)
+		{
+			$subnets[] = new Subnet($slave);
+		}
+
+		return $subnets;
 	}
 
 	public function getAddresses()
@@ -109,10 +115,14 @@ class Subnet extends BaseController
 	public function getAddressesIP(string $ip)
 	{
 		$response = $this->_get([$this->id, 'addresses', $ip]);
-		if(is_null($response->getData())){
+		if (is_null($response->getData()))
+		{
 			throw new PhpIPAMRequestException($response);
-		}else{
+		}
+		else
+		{
 			$data = array_values($response->getData());
+
 			return new Address($data[0]);
 		}
 	}
@@ -172,17 +182,24 @@ class Subnet extends BaseController
 
 	public function patchResize(int $mask)
 	{
-		try{
+		try
+		{
 			$this->_patch([$this->id, 'resize'], ['mask' => $mask]);
-		}catch (PhpIPAMRequestException $e){
-			if($e->getMessage() == "New network is same as old network"){
+		}
+		catch (PhpIPAMRequestException $e)
+		{
+			if ($e->getMessage() == "New network is same as old network")
+			{
 				return true;
-			}else{
+			}
+			else
+			{
 				throw $e;
 			}
 		}
 
 		$this->setParams(Subnet::getByID($this->id)->getParams());
+
 		return true;
 	}
 
