@@ -111,7 +111,7 @@ abstract class BaseController
 			//check if key exists in params and if its an instance of the given class
 			if (array_key_exists($k, $params) AND is_a($params[$k], $class, true))
 			{
-				$params[$key] = $params[$k]->getID();
+				$params[$key] = $params[$k]->getId();
 
 				//Delete $k if it different from $key
 				if ($key !== $k)
@@ -162,7 +162,7 @@ abstract class BaseController
 			//Return ID
 			if (is_a($value, $class))
 			{
-				return $value->getID();
+				return $value->getId();
 			}
 			else
 			{
