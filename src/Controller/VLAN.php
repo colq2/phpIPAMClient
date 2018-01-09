@@ -21,7 +21,7 @@ class VLAN extends BaseController
 	protected $description;
 	protected $editDate;
 
-	protected static function transformParamsToIDs(array $params)
+	protected static function transformParamsToIDs(array $params): array
 	{
 		$params = self::getIDFromParams($params, 'domainId', ['domainID', 'domain'], L2Domain::class);
 

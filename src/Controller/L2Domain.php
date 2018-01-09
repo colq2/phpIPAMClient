@@ -19,7 +19,7 @@ class L2Domain extends BaseController
 	protected $sections;
 	protected $editDate;
 
-	protected static function transformParamsToIDs(array $params)
+	protected static function transformParamsToIDs(array $params): array
 	{
 		return $params;
 	}
@@ -41,10 +41,6 @@ class L2Domain extends BaseController
 		return $domains;
 	}
 
-	public static function getByID(int $id)
-	{
-		return new L2Domain(self::_getStatic([$id])->getData());
-	}
 
 	public function getVLANs()
 	{
@@ -61,16 +57,6 @@ class L2Domain extends BaseController
 		}
 
 		return $vlans;
-	}
-
-	public static function post(array $params)
-	{
-		//Params that could be converted from objects to id
-		$params   = self::transformParamsToIDs($params);
-		$response = self::_postStatic([], $params);
-		$id       = $response->getBody()['id'];
-
-		return Subnet::getByID($id);
 	}
 
 	public function patch(array $params = array())

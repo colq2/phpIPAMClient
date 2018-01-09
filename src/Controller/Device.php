@@ -14,8 +14,13 @@ class Device extends BaseController
 
 	protected static $controllerName = 'devices';
 
-	protected static function transformParamsToIDs(array $params)
+	protected static function transformParamsToIDs(array $params): array
 	{
 		// TODO: Implement transformParamsToIDs() method.
+	}
+
+	public function getId()
+	{
+		// TODO: Implement getId() method.
 	}
 }

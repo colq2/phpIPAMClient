@@ -47,7 +47,7 @@ class Subnet extends BaseController
 		$this->setParams($params);
 	}
 
-	protected static function transformParamsToIDs(array $params)
+	protected static function transformParamsToIDs(array $params): array
 	{
 		//sectionId, linked_subnet, vlanId, vrfId, masterSubnetId
 		$params = self::getIDFromParams($params, 'sectionId', ['sectionID', 'section'], Section::class);

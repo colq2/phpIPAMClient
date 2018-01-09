@@ -37,7 +37,7 @@ class Address extends BaseController
 		$this->setParams($params);
 	}
 
-	protected static function transformParamsToIDs(array $params)
+	protected static function transformParamsToIDs(array $params): array
 	{
 		$params = self::getAsObjectOrID($params, 'subnetId', ['subnet', 'subnetID'], Subnet::class);
 		$params = self::getAsObjectOrID($params, 'deviceId', ['device', 'deviceID'], Device::class);

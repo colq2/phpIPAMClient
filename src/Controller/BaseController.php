@@ -16,11 +16,47 @@ abstract class BaseController
 	protected static $controllerName = '';
 	public static $defaultAsObject = true;
 
+	/*
+	 * Common functions in controller
+	 */
 	public function __construct(array $params = array())
 	{
 		$this->setParams($params);
 	}
 
+	public static function getByID(int $id)
+	{
+		return new static(static::_getStatic([$id])->getData());
+	}
+
+	public static function post(array $params)
+	{
+		//Params that could be converted from objects to id
+		$params = static::transformParamsToIDs($params);
+		$response = static::_postStatic([], $params);
+		$id = $response->getBody()['id'];
+
+		return static::getByID($id);
+	}
+
+	public function patch(array $params = array())
+	{
+		$this->setParams($params);
+		$params = $this->getParams();
+
+		return $this->_patch([], $params)->isSuccess();
+	}
+
+	public function delete()
+	{
+		return $this->_delete([], ['id' => $this->getId()]);
+	}
+
+	public abstract function getId();
+
+	/*
+	 * Request functions
+	 */
 	protected function _get(array $identifier = array(), array $params = array())
 	{
 		return static::_getStatic($identifier, $params);
@@ -39,16 +75,6 @@ abstract class BaseController
 	protected static function _postStatic(array $identifier = array(), array $params = array())
 	{
 		return phpipamConnection()->call('post', static::$controllerName, $identifier, $params);
-	}
-
-	protected function _put(array $identifier = array(), array $params = array())
-	{
-		return static::_putStatic($identifier, $params);
-	}
-
-	protected static function _putStatic(array $identifier = array(), array $params = array())
-	{
-		return phpipamConnection()->call('put', static::$controllerName, $identifier, $params);
 	}
 
 	protected function _patch(array $identifier = array(), array $params = array())
@@ -186,5 +212,5 @@ abstract class BaseController
 		static::$defaultAsObject = $asObject;
 	}
 
-	protected abstract static function transformParamsToIDs(array $params);
+	protected abstract static function transformParamsToIDs(array $params): array;
 }

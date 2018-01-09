@@ -98,9 +98,10 @@ class Section extends BaseController
 		$this->setParams($params);
 	}
 
-	protected static function transformParamsToIDs(array $params)
+	protected static function transformParamsToIDs(array $params): array
 	{
 		$params = self::getIDFromParams($params, 'masterSection', ['masterSectionId', 'masterSectionID'], Section::class);
+		return $params;
 	}
 
 	/**
