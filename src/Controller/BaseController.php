@@ -16,6 +16,11 @@ abstract class BaseController
 	protected static $controllerName = '';
 	public static $defaultAsObject = true;
 
+	public function __construct(array $params = array())
+	{
+		$this->setParams($params);
+	}
+
 	protected function _get(array $identifier = array(), array $params = array())
 	{
 		return static::_getStatic($identifier, $params);

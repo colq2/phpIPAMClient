@@ -14,7 +14,7 @@ class VLAN extends BaseController
 
 	protected static $controllerName = 'vlan';
 
-	protected $id;
+	protected $vlanId;
 	protected $domainId;
 	protected $name;
 	protected $number;
@@ -145,7 +145,7 @@ class VLAN extends BaseController
 	 */
 	public function getId()
 	{
-		return $this->id;
+		return $this->vlanId;
 	}
 
 	/**
