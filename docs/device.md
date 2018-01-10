@@ -1,4 +1,4 @@
-# Section controller
+# Device controller
 
 Please forgive me.
 

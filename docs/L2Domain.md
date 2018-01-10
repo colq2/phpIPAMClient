@@ -1,4 +1,4 @@
-# Section controller
+# L2Domain controller
 
 Please forgive me.
 

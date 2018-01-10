@@ -1,4 +1,4 @@
-# Section controller
+# Folder controller
 
 Please forgive me.
 

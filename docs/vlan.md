@@ -1,4 +1,4 @@
-# Section controller
+# VLAN controller
 
 Please forgive me.
 
