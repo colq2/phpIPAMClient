@@ -61,21 +61,20 @@ class Connection
 			case self::SECURITY_METHOD_SSL:
 				$this->setAuth($username, $password);
 				$this->generateFullURL();
+				try
+				{
+					$this->login();
+				}
+				catch (RequestException $e)
+				{
+					$response = new Response($e->getResponse());
+					throw new PhpIPAMRequestException($response, $response->getMessage());
+				}
 				break;
 
 			case self::SECURITY_METHOD_CRYPT:
 				$this->setApiKey($apiKey);
 				break;
-		}
-
-		try
-		{
-			$this->login();
-		}
-		catch (RequestException $e)
-		{
-			$response = new Response($e->getResponse());
-			throw new PhpIPAMRequestException($response, $response->getMessage());
 		}
 	}
 
@@ -160,8 +159,53 @@ class Connection
 
 	protected function callCrypt(string $method, string $controller, array $identifier = array(), array $params = array()): Response
 	{
+
+		//To encrypt we need to use openssl, 'aes-128-ecb' and OPENSSL_RAW_DATA
+		//base64_encode(openssl_encrypt($str, 'aes-128-ecb', $secret, OPENSSL_RAW_DATA));
+		//Server side we need to change $$aes_compliant_crypt to true to use this encryption
 		//TODO implement crypt method
-		return null;
+
+		//Generate $param array
+		$identifier_arr = [];
+		$i              = 0;
+		foreach ($identifier as $item)
+		{
+			$i++;
+			if ($i === 1)
+			{
+				$identifier_arr['id'] = $item;
+			}
+			else
+			{
+				$identifier_arr['id' . $i] = $item;
+			}
+		}
+		$params               = array_merge($params, $identifier_arr);
+		$params['controller'] = $controller;
+		//encrypt it
+//		$encrypted_request = openssl_encrypt(http_build_query($params), 'aes-256-ecb', $this->apiKey, OPENSSL_RAW_DATA);
+		$cipher_method = 'AES-256-CBC';
+		$size          = openssl_cipher_iv_length($cipher_method);
+		$iv            = openssl_random_pseudo_bytes($size);
+//		dd($hex);
+		$encrypted_request = openssl_encrypt(json_encode($params), $cipher_method, $this->apiKey, OPENSSL_RAW_DATA);
+		echo base64_encode($encrypted_request);
+//		$encrypted_request = base64_encode($iv.$encrypted_request);
+		$encrypted_request = base64_encode($encrypted_request);
+		$encrypted_request = urlencode($encrypted_request);
+
+		$url = $this->url . '?app_id=' . $this->appID . '&enc_request=' . $encrypted_request;
+		//generate client and sent request
+		$client = new Client();
+
+		$response = $client->$method($url, [
+			'headers' => [
+//				'CONTENT-TYPE' => 'application/x-www-form-urlencoded'
+				'CIPHER' => 'openssl'
+			],
+		]);
+
+		return new Response($response);
 	}
 
 	public static function callStatic(string $method, string $controller, array $identifier = array(), array $params = array())
