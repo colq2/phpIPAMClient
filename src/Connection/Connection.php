@@ -163,7 +163,6 @@ class Connection
 		//To encrypt we need to use openssl, 'aes-128-ecb' and OPENSSL_RAW_DATA
 		//base64_encode(openssl_encrypt($str, 'aes-128-ecb', $secret, OPENSSL_RAW_DATA));
 		//Server side we need to change $$aes_compliant_crypt to true to use this encryption
-		//TODO implement crypt method
 
 		//Generate $param array
 		$identifier_arr = [];
@@ -183,16 +182,12 @@ class Connection
 		$params               = array_merge($params, $identifier_arr);
 		$params['controller'] = $controller;
 		//encrypt it
-//		$encrypted_request = openssl_encrypt(http_build_query($params), 'aes-256-ecb', $this->apiKey, OPENSSL_RAW_DATA);
-		$cipher_method = 'AES-256-CBC';
+		$cipher_method = 'AES-256-OFB';
 		$size          = openssl_cipher_iv_length($cipher_method);
 		$iv            = openssl_random_pseudo_bytes($size);
-//		dd($hex);
-		$encrypted_request = openssl_encrypt(json_encode($params), $cipher_method, $this->apiKey, OPENSSL_RAW_DATA);
-		echo base64_encode($encrypted_request);
-//		$encrypted_request = base64_encode($iv.$encrypted_request);
-		$encrypted_request = base64_encode($encrypted_request);
-		$encrypted_request = urlencode($encrypted_request);
+		$json_params   = json_encode($params);
+		$crypt_params  = openssl_encrypt($json_params, $cipher_method, $this->apiKey, OPENSSL_RAW_DATA, $iv);
+		$encrypted_request = urlencode(base64_encode($iv . $crypt_params));
 
 		$url = $this->url . '?app_id=' . $this->appID . '&enc_request=' . $encrypted_request;
 		//generate client and sent request
