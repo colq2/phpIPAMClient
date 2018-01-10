@@ -127,6 +127,11 @@ The last parameter a of the construct is a value of the following constants:
 I recommend to use the SLL method. For this you need a https connection to your Server!
 
 If you don't have the possibility to use SSL use crypt. You need to provide the API Key from the Backend.
+Furthermore you need to change one file serverside cause phpipam uses `mcrypt` but this method is deprecated. I am using `openssl`. 
+
+[index.php](https://github.com/colq2/phpipam/blob/master/api/index.php)
+
+It is on my repo but i will stay in contact with the developer of phpipam so that we can find together a solution for that. 
 
 `$client = new PhpIPAMClient('www.example.com/phpipam', 'myApp','' , '', 'your app key, Connection::SECURITY_METHOD_CRYPT)`
 
