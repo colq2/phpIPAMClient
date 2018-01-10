@@ -49,9 +49,9 @@ abstract class BaseController
 	public static function post(array $params)
 	{
 		//Params that could be converted from objects to id
-		$params = static::transformParamsToIDs($params);
+		$params   = static::transformParamsToIDs($params);
 		$response = static::_postStatic([], $params);
-		$id = $response->getBody()['id'];
+		$id       = $response->getBody()['id'];
 
 		return static::getByID($id);
 	}
@@ -66,7 +66,7 @@ abstract class BaseController
 
 	public function delete()
 	{
-		return $this->_delete([], ['id' => $this->getId()]);
+		return $this->_delete([], ['id' => $this->getId()])->isSuccess();
 	}
 
 	public abstract function getId();
@@ -175,15 +175,16 @@ abstract class BaseController
 	}
 
 	/**
-	 * @param      $value
-	 * @param      $class
+	 * @param           $value
+	 * @param           $class
 	 * @param bool|null $asObject
 	 *
 	 * @return object|int|null
 	 */
 	protected static function getAsObjectOrID($value, $class, bool $asObject)
 	{
-		if(is_null($asObject)){
+		if (is_null($asObject))
+		{
 			$asObject = call_user_func(array($class, 'getDefaultAsObjectValue'));
 		}
 
@@ -225,12 +226,12 @@ abstract class BaseController
 		return (bool) static::$defaultAsObject;
 	}
 
-	public function setDefaultAsObjectValue(bool $asObject){
+	public function setDefaultAsObjectValue(bool $asObject)
+	{
 		static::$defaultAsObject = $asObject;
 	}
 
 	protected abstract static function transformParamsToIDs(array $params): array;
-
 
 
 	protected static function convertSectionsToID(array $arr)

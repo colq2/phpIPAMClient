@@ -32,21 +32,11 @@ class Address extends BaseController
 	protected $excludePing;
 	protected $editDate;
 
-	public function __construct(array $params = array())
-	{
-		$this->setParams($params);
-	}
-
 	protected static function transformParamsToIDs(array $params): array
 	{
 		$params = self::getAsObjectOrID($params, 'subnetId', ['subnet', 'subnetID'], Subnet::class);
 		$params = self::getAsObjectOrID($params, 'deviceId', ['device', 'deviceID'], Device::class);
 		return $params;
-	}
-
-	public static function getByID(int $id)
-	{
-		return new Address(self::_getStatic([$id])->getData());
 	}
 
 	public function getPing()
@@ -140,20 +130,6 @@ class Address extends BaseController
 		}
 	}
 
-	/**
-	 * @param array $params
-	 *
-	 * @return Address
-	 */
-	public static function post(array $params): Address
-	{
-		$params = self::transformParamsToIDs($params);
-		$response = self::_postStatic([], $params);
-		$id = $response->getBody()['id'];
-
-		return Address::getByID($id);
-	}
-
 	public static function postFirstFree($subnet, array $params = array())
 	{
 		if($subnet instanceof Subnet){
@@ -164,11 +140,6 @@ class Address extends BaseController
 		$response = self::_postStatic(['first_free', $subnet], $params);
 		$id = $response->getBody()['id'];
 		return Address::getByID($id);
-	}
-
-	public function delete()
-	{
-		return $this->_delete()->isSuccess();
 	}
 
 	public static function deleteByIPAndSubnet(string $ip, $subnet)

@@ -122,6 +122,35 @@ class L2Domain extends BaseController
 	}
 
 	/**
+	 * @param bool|null $asObject
+	 *
+	 * @return array
+	 */
+	public function getSections(bool $asObject = null)
+	{
+		$sections = [];
+		foreach ($this->sections as $section)
+		{
+			$sections[] = self::getAsObjectOrID($section, Section::class, $asObject);
+		}
+		$this->sections = $sections;
+
+		return $this->sections;
+	}
+
+	/**
+	 * @param array $sections
+	 *
+	 * @return L2Domain
+	 */
+	public function setSections(array $sections)
+	{
+		$this->sections = $sections;
+
+		return $this;
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getEditDate(): string

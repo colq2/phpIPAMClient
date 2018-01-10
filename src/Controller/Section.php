@@ -88,50 +88,10 @@ class Section extends BaseController
 	 */
 	protected $DNS;
 
-	/**
-	 * Section constructor.
-	 *
-	 * @param array $params
-	 */
-	public function __construct(array $params = array())
-	{
-		$this->setParams($params);
-	}
-
 	protected static function transformParamsToIDs(array $params): array
 	{
 		$params = self::getIDFromParams($params, 'masterSection', ['masterSectionId', 'masterSectionID'], Section::class);
 		return $params;
-	}
-
-	/**
-	 * Returns all sections
-	 * @return array
-	 */
-	public static function getAll()
-	{
-		$response = self::_getStatic();
-		$sections = array();
-		foreach ($response->getData() as $section)
-		{
-			$sections[] = new Section($section);
-		}
-
-		return $sections;
-	}
-
-	/**
-	 * Returns specific section
-	 *
-	 * @param int $id
-	 *
-	 * @return Section
-	 */
-	public static function getByID(int $id)
-	{
-		$response = self::_getStatic([$id]);
-
-		return new Section($response->getData());
 	}
 
 	/**
@@ -197,31 +157,6 @@ class Section extends BaseController
 
 		//Section is created lets get it
 		return Section::getByName($params['name']);
-	}
-
-	/**
-	 * Updates section
-	 *
-	 * @param array $params
-	 *
-	 * @return bool
-	 */
-	public function patch(array $params = array())
-	{
-		$this->setParams($params);
-		$params   = $this->getParams();
-		$response = $this->_patch([], $params);
-
-		return $response->isSuccess();
-	}
-
-	/**
-	 * Deletes section with all belonging subnets and addresses
-	 * @return bool
-	 */
-	public function delete()
-	{
-		return $this->_delete([], ['id' => $this->getId()])->isSuccess();
 	}
 
 	/**

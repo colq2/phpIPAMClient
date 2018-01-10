@@ -41,12 +41,6 @@ class Subnet extends BaseController
 	protected $location;
 	protected $editDate;
 
-
-	public function __construct(array $params = array())
-	{
-		$this->setParams($params);
-	}
-
 	protected static function transformParamsToIDs(array $params): array
 	{
 		//sectionId, linked_subnet, vlanId, vrfId, masterSubnetId
@@ -58,11 +52,21 @@ class Subnet extends BaseController
 		return $params;
 	}
 
-	public static function getByID(int $id)
+	public static function getAll()
 	{
-		$response = self::_getStatic([$id]);
+		$response = static::_getStatic(['all']);
+		if (is_null($response->getData()) or empty($response->getData()))
+		{
+			return [];
+		}
+		$objects = [];
 
-		return new Subnet($response->getData());
+		foreach ($response->getData() as $object)
+		{
+			$objects[] = new static($object);
+		}
+
+		return $objects;
 	}
 
 	public function getUsage()
@@ -152,17 +156,6 @@ class Subnet extends BaseController
 		return $this->_get(['search', $subnet])->getData();
 	}
 
-	public static function post(array $params = array())
-	{
-		//Params that could be converted from objects to id
-		$params   = self::transformParamsToIDs($params);
-		$response = self::_postStatic([], $params);
-		$id       = $response->getBody()['id'];
-
-		return Subnet::getByID($id);
-	}
-
-
 	public function postFirstSubnet(int $mask): Subnet
 	{
 		$response = $this->_post([$this->id, 'first_subnet', $mask]);
@@ -170,14 +163,6 @@ class Subnet extends BaseController
 		$id = $response->getBody()['id'];
 
 		return Subnet::getByID($id);
-	}
-
-	public function patch(array $params = array())
-	{
-		$this->setParams($params);
-		$params = $this->getParams();
-
-		return $this->_patch([], $params)->isSuccess();
 	}
 
 	public function patchResize(int $mask)
@@ -206,11 +191,6 @@ class Subnet extends BaseController
 	public function patchSplit(int $number)
 	{
 		return $this->_patch([$this->id, 'split'], ['number' => $number])->isSuccess();
-	}
-
-	public function delete()
-	{
-		return $this->_delete([$this->id])->isSuccess();
 	}
 
 	public function deleteTruncate()
