@@ -29,4 +29,24 @@ class PhpIPAMClient
 	{
 		return $this->call('OPTIONS', '')->getData();
 	}
+
+
+	public function getToken()
+	{
+		return $this->connection->getToken();
+	}
+
+	public function getTokenExpires()
+	{
+		return $this->connection->getTokenExpires();
+	}
+	public function getAllUsers()
+	{
+		return $this->call('get', 'user', ['all'])->getData();
+	}
+
+	public function getAllAdmins()
+	{
+		return $this->call('admins', 'user', ['all'])->getData();
+	}
 }

@@ -12,7 +12,7 @@ namespace colq2\PhpIPAMClient\Exception;
 use colq2\PhpIPAMClient\Connection\Response;
 use Throwable;
 
-class PhpIPAMRequestException extends \Exception
+class PhpIPAMRequestException extends PhpIPAMException
 {
 	protected $response;
 

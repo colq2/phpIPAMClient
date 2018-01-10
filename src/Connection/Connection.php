@@ -12,6 +12,7 @@ use colq2\PhpIPAMClient\Exception\PhpIPAMException;
 use colq2\PhpIPAMClient\Exception\PhpIPAMRequestException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
+use Respect\Validation\Rules\DateTest;
 use Respect\Validation\Validator;
 use function colq2\PhpIPAMClient\phpipamAddLastSlash;
 use function colq2\PhpIPAMClient\phpipamMakeURL;
@@ -20,7 +21,7 @@ class Connection
 {
 	const SECURITY_METHOD_SSL = 'ssl';
 	const SECURITY_METHOD_CRYPT = 'crypt';
-
+	const SECURITY_METHOD_BOTH = 'ssl|crypt';
 	protected $token;
 	protected $tokenExpires;
 
@@ -31,7 +32,7 @@ class Connection
 	private $password;
 	private $apiKey;
 
-	protected $possibleSecurityMethods = [self::SECURITY_METHOD_SSL, self::SECURITY_METHOD_CRYPT];
+	protected $possibleSecurityMethods = [self::SECURITY_METHOD_SSL, self::SECURITY_METHOD_CRYPT, self::SECURITY_METHOD_BOTH];
 	protected $securityMethod = self::SECURITY_METHOD_SSL;
 
 	private static $connection;
@@ -101,7 +102,6 @@ class Connection
 
 	public function call(string $method, string $controller, array $identifier = array(), array $params = array())
 	{
-		//TODO ensure that method and controller are valid
 		$method     = strtolower($method);
 		$controller = strtolower($controller);
 
@@ -113,6 +113,7 @@ class Connection
 				break;
 
 			case Connection::SECURITY_METHOD_CRYPT:
+			case Connection::SECURITY_METHOD_BOTH:
 				return $this->callCrypt($method, $controller, $identifier, $params);
 				break;
 
@@ -123,9 +124,8 @@ class Connection
 
 	protected function callSSL(string $method, string $controller, array $identifier = array(), array $params = array()): Response
 	{
-		//TODO ensure that it is a ssl connection
-
-		//TODO check that token is not expired
+		//Check if token is expired
+		$this->checkToken();
 		$client = new Client();
 		//Controller could be empty for the options call
 		if (empty($controller))
@@ -182,11 +182,11 @@ class Connection
 		$params               = array_merge($params, $identifier_arr);
 		$params['controller'] = $controller;
 		//encrypt it
-		$cipher_method = 'AES-256-OFB';
-		$size          = openssl_cipher_iv_length($cipher_method);
-		$iv            = openssl_random_pseudo_bytes($size);
-		$json_params   = json_encode($params);
-		$crypt_params  = openssl_encrypt($json_params, $cipher_method, $this->apiKey, OPENSSL_RAW_DATA, $iv);
+		$cipher_method     = 'AES-256-OFB';
+		$size              = openssl_cipher_iv_length($cipher_method);
+		$iv                = openssl_random_pseudo_bytes($size);
+		$json_params       = json_encode($params);
+		$crypt_params      = openssl_encrypt($json_params, $cipher_method, $this->apiKey, OPENSSL_RAW_DATA, $iv);
 		$encrypted_request = urlencode(base64_encode($iv . $crypt_params));
 
 		$url = $this->url . '?app_id=' . $this->appID . '&enc_request=' . $encrypted_request;
@@ -219,13 +219,31 @@ class Connection
 
 	public static function getInstance(): Connection
 	{
-		return self::$connection;
+		if (is_null(self::$connection))
+		{
+			throw new PhpIPAMException("Connection is not established.");
+		}
+		else
+		{
+			return self::$connection;
+		}
 	}
 
 	private function setUrl(string $url)
 	{
-		//Make the url
-		$url = phpipamMakeURL($url);
+		//Ensure that url is https if ssl is used
+		switch ($this->securityMethod)
+		{
+			case Connection::SECURITY_METHOD_SSL:
+			case Connection::SECURITY_METHOD_BOTH:
+				$url = phpipamMakeURL($url, 'https://');
+				break;
+
+			case Connection::SECURITY_METHOD_CRYPT:
+				$url = phpipamMakeURL($url, 'http://');
+				break;
+
+		}
 
 		//Validate url
 		if (Validator::url()->validate($url))
@@ -275,6 +293,10 @@ class Connection
 		{
 			$this->securityMethod = $securityMethod;
 		}
+		else
+		{
+			throw new PhpIPAMException('Invalid security method.');
+		}
 	}
 
 	private function setApiKey(string $apiKey)
@@ -286,6 +308,39 @@ class Connection
 		else
 		{
 			throw new PhpIPAMException('Invalid api key.');
+		}
+	}
+
+	public function getToken()
+	{
+		return $this->token;
+	}
+
+	public function getTokenExpires()
+	{
+		return $this->tokenExpires;
+	}
+
+	protected function checkToken()
+	{
+		$date_now   = new \DateTime();
+		$date_token = new \DateTime($this->tokenExpires);
+		if ($date_now > $date_token)
+		{
+			//Token expired, lets relogin
+			$this->login();
+		}
+	}
+
+	public function __destruct()
+	{
+		try
+		{
+			$connection = self::getInstance();
+			$connection->call('delete', 'user');
+		}
+		catch (PhpIPAMException $e)
+		{
 		}
 	}
 }
