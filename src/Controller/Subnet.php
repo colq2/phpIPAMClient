@@ -133,11 +133,12 @@ class Subnet extends BaseController
 
 	public function getFirstSubnet(int $mask)
 	{
-		return $this->_get([$this->id, 'first_subnet', $mask])->getData();
+		return new Subnet($this->_get([$this->id, 'first_subnet', $mask])->getData());
 	}
 
 	public function getAllSubnets(int $mask)
 	{
+		//TODO return objects
 		return $this->_get([$this->id, 'all_subnets', $mask])->getData();
 	}
 

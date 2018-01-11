@@ -334,12 +334,16 @@ class Connection
 
 	public function __destruct()
 	{
+
+		if($this->securityMethod === Connection::SECURITY_METHOD_CRYPT){
+			return;
+		}
 		try
 		{
 			$connection = self::getInstance();
 			$connection->call('delete', 'user');
 		}
-		catch (PhpIPAMException $e)
+		catch (\Exception $e)
 		{
 		}
 	}
