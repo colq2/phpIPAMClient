@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "925b7dea1ba89407bf2da05420bcba63",
+    "content-hash": "47384cda12340c5854c602143fa37686",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -239,7 +239,7 @@
         },
         {
             "name": "respect/validation",
-            "version": "1.1.15",
+            "version": "1.1.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Respect/Validation.git",
@@ -661,12 +661,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpDocumentor/ReflectionDocBlock.git",
-                "reference": "3bf31c9f4eed9b89c5a4fdbe0100dfd26d08fa8e"
+                "reference": "9ff23ace62fe82ef78bcfb3eca6d270728ce51ab"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpDocumentor/ReflectionDocBlock/zipball/3bf31c9f4eed9b89c5a4fdbe0100dfd26d08fa8e",
-                "reference": "3bf31c9f4eed9b89c5a4fdbe0100dfd26d08fa8e",
+                "url": "https://api.github.com/repos/phpDocumentor/ReflectionDocBlock/zipball/9ff23ace62fe82ef78bcfb3eca6d270728ce51ab",
+                "reference": "9ff23ace62fe82ef78bcfb3eca6d270728ce51ab",
                 "shasum": ""
             },
             "require": {
@@ -703,7 +703,7 @@
                 }
             ],
             "description": "With this component, a library can provide support for annotations via DocBlocks or otherwise retrieve information that is embedded in a DocBlock.",
-            "time": "2018-01-07T20:52:59+00:00"
+            "time": "2018-01-09T20:25:16+00:00"
         },
         {
             "name": "phpdocumentor/type-resolver",
@@ -1825,12 +1825,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/var-dumper.git",
-                "reference": "de18d9cd42558545a22dd30c0f2c6796a9ec8595"
+                "reference": "d516d9e848f3c60e0daa78b7340cf311ccc9c622"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/var-dumper/zipball/de18d9cd42558545a22dd30c0f2c6796a9ec8595",
-                "reference": "de18d9cd42558545a22dd30c0f2c6796a9ec8595",
+                "url": "https://api.github.com/repos/symfony/var-dumper/zipball/d516d9e848f3c60e0daa78b7340cf311ccc9c622",
+                "reference": "d516d9e848f3c60e0daa78b7340cf311ccc9c622",
                 "shasum": ""
             },
             "require": {
@@ -1886,7 +1886,7 @@
                 "debug",
                 "dump"
             ],
-            "time": "2018-01-03T17:15:33+00:00"
+            "time": "2018-01-10T19:03:03+00:00"
         },
         {
             "name": "theseer/tokenizer",

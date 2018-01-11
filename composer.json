@@ -20,7 +20,7 @@
     "require": {
       "php": "^7.0",
         "guzzlehttp/guzzle": "^6.3",
-        "respect/validation": "1.1.15"
+        "respect/validation": "^1.1"
     },
     "autoload": {
         "psr-4": {
