@@ -156,10 +156,10 @@ class Subnet extends BaseController
 		return $this->_get(['search', $subnet])->getData();
 	}
 
-	public function postFirstSubnet(int $mask): Subnet
+	public function postFirstSubnet(int $mask, $params): Subnet
 	{
-		$response = $this->_post([$this->id, 'first_subnet', $mask]);
-		dd($response);
+		$params = self::transformParamsToIDs($params);
+		$response = $this->_post([$this->id, 'first_subnet', $mask], $params);
 		$id = $response->getBody()['id'];
 
 		return Subnet::getByID($id);
