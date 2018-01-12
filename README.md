@@ -12,7 +12,16 @@ Learn more:
 ## Installation
 You can install this package through composer:
 
+At the moment I suggest to stay at the 1.0.x-dev version:
+
+`composer require colq2/phpipam-client:1.0.x-dev`
+
+cause i always find some small issues and todo's that I'm fixing on this branch.
+
+Else you can go with the current release:
+
 `composer require colq2/phpipam-client`
+
 
 ## Basic Usage
 
