@@ -39,7 +39,7 @@ Read more on [Security](#security)
 ### Initialize connection
 `use colq2\PhpIPAMClient;`
 
-`$client = new PhpIPAMClient('1.2.3.4', 'myApp', 'name', 'password', 'apikey', );`
+`$client = new PhpIPAMClient('1.2.3.4', 'myApp', 'name', 'password', 'apikey');`
 
 or
 
