@@ -94,11 +94,6 @@ class VLAN extends BaseController
 		return $vlans;
 	}
 
-	public function delete()
-	{
-		return $this->_delete([], ['vlanId' => $this->getId()])->isSuccess();
-	}
-
 	/**
 	 * @return int
 	 */
