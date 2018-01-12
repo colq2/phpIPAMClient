@@ -82,6 +82,9 @@ class Subnet extends BaseController
 	public function getSlaves()
 	{
 		$slaves  = $this->_get([$this->id, 'slaves'])->getData();
+		if(is_null($slaves) or empty($slaves)){
+			return [];
+		}
 		$subnets = [];
 
 		foreach ($slaves as $slave)
