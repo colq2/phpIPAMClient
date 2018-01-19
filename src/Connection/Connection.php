@@ -22,6 +22,8 @@ class Connection
 	const SECURITY_METHOD_SSL = 'ssl';
 	const SECURITY_METHOD_CRYPT = 'crypt';
 	const SECURITY_METHOD_BOTH = 'ssl|crypt';
+	public static $MAX_TRIES_GET_NEW_TOKEN = 10;
+
 	protected $token;
 	protected $tokenExpires;
 
@@ -109,7 +111,25 @@ class Connection
 		switch ($this->securityMethod)
 		{
 			case Connection::SECURITY_METHOD_SSL:
-				return $this->callSSL($method, $controller, $identifier, $params);
+				$tries = 0;
+				do
+				{
+					try
+					{
+						return $this->callSSL($method, $controller, $identifier, $params);
+					}
+					catch (PhpIPAMException $e)
+					{
+						//Check if token is invalid and login again
+						if (strcmp($e->getMessage(), "Invalid token") === 0)
+						{
+							$this->login();
+						}
+						$tries++;
+					}
+				} while ($tries < Connection::$MAX_TRIES_GET_NEW_TOKEN);
+				//Finally we tried ten times
+				throw new PhpIPAMException("Can't get a valid token, giving up after $tries tries.");
 				break;
 
 			case Connection::SECURITY_METHOD_CRYPT:
@@ -122,6 +142,15 @@ class Connection
 		}
 	}
 
+	/**
+	 * @param string $method
+	 * @param string $controller
+	 * @param array  $identifier
+	 * @param array  $params
+	 *
+	 * @return Response
+	 * @throws PhpIPAMRequestException
+	 */
 	protected function callSSL(string $method, string $controller, array $identifier = array(), array $params = array()): Response
 	{
 		//Check if token is expired
@@ -335,7 +364,8 @@ class Connection
 	public function __destruct()
 	{
 
-		if($this->securityMethod === Connection::SECURITY_METHOD_CRYPT){
+		if ($this->securityMethod === Connection::SECURITY_METHOD_CRYPT)
+		{
 			return;
 		}
 		try
