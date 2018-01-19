@@ -124,8 +124,10 @@ class Connection
 						if (strcmp($e->getMessage(), "Invalid token") === 0)
 						{
 							$this->login();
+							$tries++;
+						}else{
+							throw $e;
 						}
-						$tries++;
 					}
 				} while ($tries < Connection::$MAX_TRIES_GET_NEW_TOKEN);
 				//Finally we tried ten times
