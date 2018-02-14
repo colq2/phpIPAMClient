@@ -169,6 +169,18 @@ class Subnet extends BaseController
 		return Subnet::getByID($id);
 	}
 
+	public function patch(array $params = array())
+	{
+		$this->setParams($params);
+		$params = $this->getParams();
+
+		//We need to unset subnet and mask cause phpipam controller checks if it is set and don't accept it
+		unset($params['subnet']);
+		unset($params['mask']);
+
+		return $this->_patch([], $params)->isSuccess();
+	}
+
 	public function patchResize(int $mask)
 	{
 		try
