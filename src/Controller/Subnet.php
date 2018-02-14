@@ -174,9 +174,12 @@ class Subnet extends BaseController
 		$this->setParams($params);
 		$params = $this->getParams();
 
-		//We need to unset subnet and mask cause phpipam controller checks if it is set and don't accept it
+		//We need to unset some attributes
 		unset($params['subnet']);
 		unset($params['mask']);
+		unset($params['editDate']);
+		unset($params['tag']);
+		unset($params['calculation']);
 
 		return $this->_patch([], $params)->isSuccess();
 	}
