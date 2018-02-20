@@ -269,11 +269,6 @@ class Connection
 			case Connection::SECURITY_METHOD_BOTH:
 				$url = phpipamMakeURL($url, 'https://');
 				break;
-
-			case Connection::SECURITY_METHOD_CRYPT:
-				$url = phpipamMakeURL($url, 'http://');
-				break;
-
 		}
 
 		//Validate url

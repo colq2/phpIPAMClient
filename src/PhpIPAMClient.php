@@ -35,7 +35,7 @@ class PhpIPAMClient
 
 	public function getAllControllers()
 	{
-		return $this->call('OPTIONS', '')->getData();
+		return $this->call('OPTIONS', 'Tools')->getData();
 	}
 
 
