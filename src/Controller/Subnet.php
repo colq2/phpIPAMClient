@@ -81,8 +81,9 @@ class Subnet extends BaseController
 
 	public function getSlaves()
 	{
-		$slaves  = $this->_get([$this->id, 'slaves'])->getData();
-		if(is_null($slaves) or empty($slaves)){
+		$slaves = $this->_get([$this->id, 'slaves'])->getData();
+		if (is_null($slaves) or empty($slaves))
+		{
 			return [];
 		}
 		$subnets = [];
@@ -110,7 +111,11 @@ class Subnet extends BaseController
 
 	public function getAddresses()
 	{
-		$addresses    = $this->_get([$this->id, 'addresses'])->getData();
+		$addresses = $this->_get([$this->id, 'addresses'])->getData();
+		if (is_null($addresses))
+		{
+			return [];
+		}
 		$addressesArr = [];
 		foreach ($addresses as $address)
 		{
@@ -162,9 +167,9 @@ class Subnet extends BaseController
 
 	public function postFirstSubnet(int $mask, $params): Subnet
 	{
-		$params = self::transformParamsToIDs($params);
+		$params   = self::transformParamsToIDs($params);
 		$response = $this->_post([$this->id, 'first_subnet', $mask], $params);
-		$id = $response->getBody()['id'];
+		$id       = $response->getBody()['id'];
 
 		return Subnet::getByID($id);
 	}
