@@ -110,7 +110,7 @@ class Subnet extends BaseController
 
 	public function getAddresses()
 	{
-		$addresses    = $this->_get([$this->id, 'addresses']);
+		$addresses    = $this->_get([$this->id, 'addresses'])->getData();
 		$addressesArr = [];
 		foreach ($addresses as $address)
 		{
