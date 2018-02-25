@@ -122,6 +122,7 @@ class Subnet extends BaseController
 			$addressesArr[] = new Address($address);
 		}
 
+		return $addressesArr;
 	}
 
 	public function getAddressesIP(string $ip)
