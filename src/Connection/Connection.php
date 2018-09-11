@@ -223,6 +223,8 @@ class Connection
 		$url = $this->url . '?app_id=' . $this->appID . '&enc_request=' . $encrypted_request;
 		//generate client and sent request
 		$client = new Client();
+		//ToDo: make optional
+		$client->setDefaultOption('verify', false);
 
 		$response = $client->$method($url, [
 			'headers' => [
